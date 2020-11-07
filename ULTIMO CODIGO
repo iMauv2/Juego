@@ -12,10 +12,18 @@ from pygame.locals import *
 pygame.init()
 fondo_mainmenu = pygame.image.load("Juego\\sprites\\rsz_wallpapaer_menu.png")
 fondo_salir = pygame.image.load("Juego\\sprites\\rsz_dino_end_game.png")
-
+fondo_final = pygame.image.load("Juego\\sprites\\fondo_final.png")
+fondo_final_win = pygame.image.load("Juego\\sprites\\fondo_final_win.png")
 withe = (255, 255, 255)
+nivel_fianal = False
 
-
+class Youwin(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load("Juego\\sprites\\winwin.png").convert()
+        self.image.set_colorkey([255,255,255])
+        self.rect = self.image.get_rect()
+        self.rect.y=250
 
 class Background(pygame.sprite.Sprite):
     def __init__(self, image_file, location):
@@ -28,7 +36,7 @@ class Background(pygame.sprite.Sprite):
 class Nube(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load("Juego\\sprites\\cloud.png")
+        self.image = pygame.image.load("Juego\\sprites\\cloud.jpg")
         self.image.set_colorkey(withe)
         self.WIDTH, self.HEIGHT = 170, 90
         self.image = pygame.transform.scale(self.image, (self.WIDTH, self.HEIGHT))
@@ -48,8 +56,7 @@ class Nube(pygame.sprite.Sprite):
 Background_opcion = Background(fondo_salir, [0, 0])
 Background_Menu = Background(fondo_mainmenu, [0, 0])
 
-##CREACION DE LISTA PARA GUARDAR ENEMIGOS, DIBUJARLOS Y DETECTAR COLICIONES
-enemigos_lista = pygame.sprite.Group()
+
 ## CLASE ENEMIGOS
 class Enemigo1(pygame.sprite.Sprite):
     def __init__(self):
@@ -74,17 +81,25 @@ class Enemigo1(pygame.sprite.Sprite):
             self.speedy *= -1
 
 
+## CREACION DE ENEMIGOS CON SU POSICION X y AGREGACION A LA LISTA DE ENEMIGOS
+pos_x = 1000
+enemigos_lista = pygame.sprite.Group()
+for i in range(50):
+    enemigo = Enemigo1()
+    enemigo.rect.x = pos_x
+    enemigo.rect.y = 200
+    enemigos_lista.add(enemigo)
+    pos_x += 1300
 
 
-
-## CLASE ENEMIGOS2
+## CLASE ENEMIGOS
 class Enemigo2(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load("Juego\\sprites\\enemigo3.jpg")
         self.image.set_colorkey(withe)
         self.rect = self.image.get_rect()
-        self.WIDTH, self.HEIGHT = 110, 80
+        self.WIDTH, self.HEIGHT = 90, 60
         self.image = pygame.transform.scale(self.image, (self.WIDTH, self.HEIGHT))
         self.y = self.rect.y
         self.x = self.rect.x
@@ -103,6 +118,15 @@ class Enemigo2(pygame.sprite.Sprite):
             self.speedy *= -1
 
 
+## CREACION DE ENEMIGOS CON SU POSICION X y AGREGACION A LA LISTA DE ENEMIGOS
+
+enemigos_lista2 = pygame.sprite.Group()
+for i in range(50):
+    enemigo2 = Enemigo2()
+    enemigo2.rect.x = pos_x
+    enemigo2.rect.y = 200
+    enemigos_lista2.add(enemigo2)
+    pos_x += 1300
 ## CREACION DE CURSOR PARA INTERACTUAR EN EL MENU
 class Cursor(pygame.Rect):
     def __init__(self):
@@ -172,7 +196,6 @@ click = False
 pause = False
 screen = pygame.display.set_mode((800, 600))
 
-##CREACION DE CLASE PARA GUARDAR VALAS Y DIBUJARLAS EN PANTALLA Y PARA DETECTAR COLICIONES
 all_sprites = pygame.sprite.Group()
 bullets = pygame.sprite.Group()
 white = (0, 0, 0)
@@ -531,8 +554,6 @@ def Game():
                     running = True
                     score_value = 0
                     pos_x = 400
-
-                    ###CREACION DE TODOS LOS ENEMIGOS CON SU POCICION X YA DEFINIDA
                     for i in range(50):
                         enemigo = Enemigo1()
                         enemigo.rect.x = pos_x
@@ -547,7 +568,7 @@ def Game():
 
         while running:
             clock.tick(FPS)  # Controlling Frames Per Second
-
+            nivel_final=False
             score = font.render("Score: " + str(int(score_value)), True, (200, 200, 200))
             score_value += 0.25
             high_score_value = max(high_score_value, score_value)
@@ -587,11 +608,10 @@ def Game():
             volcan.update()
             volcan.draw(screen)
             hits = pygame.sprite.groupcollide(enemigos_lista, all_sprites, True, True)
-
-            ## AUMENTA 30 PUNTOS POR CADA ENEMIGO COLICIONADO
             for block in hits:
                 score_value += 30
 
+            hits2= pygame.sprite.spritecollide(player, enemigos_lista, True)
 
             screen.blit(score, (650, 30))
             screen.blit(high_score, (450, 30))
@@ -617,19 +637,88 @@ def Game():
 
             pygame.display.update()
 
-            ##DETECTA COLICION ENTRE PLAYER Y ENEMIGOS
             for e in enemigos_lista:
                 y2=e.y+70
                 if y2>player.y and e.x<(player.x+50):
                     dead=True
 
-            if dead:
-                del player
-                del ground
-                del volcan
+            if score_value > 150:
+                nivel_final = True
                 enemigos_lista.empty()
+                pos_x2=player.x+800
+                for i in range(50):
+                    pos_y=random.randint(0,100)
+                    enemigo = Enemigo1()
+                    enemigo.rect.x = pos_x2
+                    enemigo.rect.y = 200+pos_y
+                    pos_y = random.randint(0, 100)
+                    enemigo2 = Enemigo2()
+                    enemigo2.rect.x = pos_x2 + 25
+                    enemigo2.rect.y = 200+pos_y
+                    enemigos_lista.add(enemigo)
+                    enemigos_lista.add(enemigo2)
+                    pos_x2 += 50
+#######################################################################################
+            ##############################################################################
+            ##############################################################################
+            while nivel_final:
+                clock.tick(FPS)  # Controlling Frames Per Second
 
-                running = False
+                #####screen.fill(GREY)
+                screen.blit(fondo_final, [0, 0])
+
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_SPACE:
+                            player.jump()
+                        elif event.key == pygame.K_DOWN:
+                            player.ducking = True
+                        elif event.key == pygame.K_e:
+                            Pause()
+                        elif event.key == pygame.K_c:
+                            player.shoot()
+                    elif event.type == pygame.KEYUP:
+                        if event.key == pygame.K_DOWN:
+                            player.ducking = False
+
+                ground.draw(screen)
+                all_sprites.draw(screen)
+                all_sprites.update()
+                enemigos_lista.draw(screen)
+                enemigos_lista.update()
+
+                i=0
+                for e in enemigos_lista:
+                    e.speedx+100
+                    i+=1
+                if i==0:
+                    screen.blit(fondo_final_win, [0, 0])
+                    
+
+                    
+
+
+
+                player.update()
+                player.draw(screen)
+                hits = pygame.sprite.groupcollide(enemigos_lista, all_sprites, True, True)
+
+
+
+                pygame.display.update()
+
+            for e in enemigos_lista:
+                y2=e.y+70
+                if y2>player.y and e.x<(player.x+50):
+                    dead=True
+
+
+
+
+
+
 
 
 
@@ -640,4 +729,5 @@ def Game():
 main_menu()
 
 """
+para cargar sonidos : <variable>.pygame.load.sound('') """
 para cargar sonidos : <variable>.pygame.load.sound('') """
