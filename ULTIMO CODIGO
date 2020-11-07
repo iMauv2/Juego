@@ -100,7 +100,7 @@ class Enemigo2(pygame.sprite.Sprite):
         self.image = pygame.image.load("Juego\\sprites\\enemigo3.jpg")
         self.image.set_colorkey(withe)
         self.rect = self.image.get_rect()
-        self.WIDTH, self.HEIGHT = 90, 60
+        self.WIDTH, self.HEIGHT = 120, 90
         self.image = pygame.transform.scale(self.image, (self.WIDTH, self.HEIGHT))
         self.y = self.rect.y
         self.x = self.rect.x
@@ -643,7 +643,15 @@ def Game():
                 if y2>player.y and e.x<(player.x+50):
                     dead=True
 
-            if score_value > 700:
+            if dead:
+                del player
+                del ground
+                del volcan
+                enemigos_lista.empty()
+
+                running = False
+
+            if score_value > 600:
                 nivel_final = True
                 enemigos_lista.empty()
                 pos_x2=player.x+800
@@ -690,6 +698,7 @@ def Game():
                 enemigos_lista.draw(screen)
                 enemigos_lista.update()
 
+
                 i=0
                 for e in enemigos_lista:
                     e.speedx+100
@@ -697,6 +706,15 @@ def Game():
                 if i==0:
                     screen.blit(fondo_final_win, [0, 0])
                     player.x=-100
+
+                for e in enemigos_lista:
+                    y2 = e.y + 70
+                    if y2 > player.y and e.x < (player.x + 50):
+                        nivel_final=False
+                        running=False
+                        enemigos_lista.empty()
+
+
 
 
 
@@ -710,15 +728,6 @@ def Game():
 
 
                 pygame.display.update()
-
-            for e in enemigos_lista:
-                y2=e.y+70
-                if y2>player.y and e.x<(player.x+50):
-                    dead=True
-
-
-
-
 
 
 
