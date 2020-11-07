@@ -13,7 +13,8 @@ pygame.init()
 fondo_mainmenu = pygame.image.load("Juego\\sprites\\rsz_wallpapaer_menu.png")
 fondo_salir = pygame.image.load("Juego\\sprites\\rsz_dino_end_game.png")
 fondo_final = pygame.image.load("Juego\\sprites\\fondo_final.png")
-fondo_final_win = pygame.image.load("Juego\\sprites\\fondo_final_win.png")
+fondo_final_win = pygame.image.load("Juego\\sprites\\wiin.jpg")
+
 withe = (255, 255, 255)
 nivel_fianal = False
 
@@ -642,7 +643,7 @@ def Game():
                 if y2>player.y and e.x<(player.x+50):
                     dead=True
 
-            if score_value > 150:
+            if score_value > 700:
                 nivel_final = True
                 enemigos_lista.empty()
                 pos_x2=player.x+800
@@ -695,9 +696,10 @@ def Game():
                     i+=1
                 if i==0:
                     screen.blit(fondo_final_win, [0, 0])
-                    
+                    player.x=-100
 
-                    
+
+
 
 
 
@@ -729,5 +731,4 @@ def Game():
 main_menu()
 
 """
-para cargar sonidos : <variable>.pygame.load.sound('') """
 para cargar sonidos : <variable>.pygame.load.sound('') """
