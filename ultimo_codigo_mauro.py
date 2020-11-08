@@ -11,7 +11,7 @@ from pygame.locals import *
 
 pygame.init()
 fondo_mainmenu = pygame.image.load("Juego\\sprites\\rsz_wallpapaer_menu.png")
-fondo_salir = pygame.image.load("Juego\\sprites\\rsz_dino_end_game.png")
+
 fondo_final = pygame.image.load("Juego\\sprites\\fondo_final.png")
 fondo_final_win = pygame.image.load("Juego\\sprites\\wiin.jpg")
 
@@ -159,32 +159,31 @@ class Boton(pygame.sprite.Sprite):
 
 
 # ----------------------------------------------------------------
-salir = pygame.image.load("Juego\\sprites\\quit.png")
+controles = pygame.image.load("Juego\\sprites\\controles.png")
 historia = pygame.image.load("Juego\\sprites\\historia.png")
+salir = pygame.image.load("Juego\\sprites\\fondo_salir.png")
 play = pygame.image.load("Juego\\sprites\\jugar blanco.png")
 play_2 = pygame.image.load("Juego\\sprites\\jugar verde.png")
 opcion_1 = pygame.image.load("Juego\\sprites\\opciones blanco.png")
 opcion_2 = pygame.image.load("Juego\\sprites\\opciones celeste.png")
 exit = pygame.image.load("Juego\\sprites\\Salir blanco.png")
 exit_2 = pygame.image.load("Juego\\sprites\\Salir rojo.png")
-altavoz = pygame.image.load("Juego\\sprites\\altavoz.png")
-vlmen_arriba = pygame.image.load("Juego\\sprites\\mas.png")
-vlmen_abajo = pygame.image.load("Juego\\sprites\\restar.png")
-muted = pygame.image.load("Juego\\sprites\\mudo.png")
-sonido = pygame.image.load("Juego\\sprites\\sonido.png")
-HUD_sonido = Background(sonido, [600, 50])
-HUD_muted = Background(muted, [600, 50])
-HUD_vlmenAbajo = Background(vlmen_abajo, [680, 50])
-HUD_vlmen = Background(vlmen_arriba, [680, 50])
-altavoz_pantalla = Background(altavoz, [600, 50])
+icono_ventana = pygame.image.load("Juego\\sprites\\icono.png") #cargo la imagen para el icono
+pygame.display.set_icon(icono_ventana)  #mando como parametro la variable con la imagen del icono y la coloco como icono
+pygame.display.set_caption("Dragon Fly")    #le pongo el nombre en la ventana
+# --------------- cargo las variables de los botones
 boton1 = Boton(play, play_2, 300, 150)
 boton2 = Boton(opcion_1, opcion_2, 300, 300)
 boton3 = Boton(exit, exit_2, 300, 450)
-cursor1 = Cursor()
-Background_opcion = Background(fondo_salir, [0, 0])
+
+cursor1 = Cursor() # esta es nomas llamo una funcion de la clase cursor para usar los botones
+
+# --------------- Aca cargo fondos de pantallas 
+Background_opcion = Background(controles, [0, 0])
 Background_Menu = Background(fondo_mainmenu, [0, 0])
 Background_historia = Background(historia,[0,0])
-Background_quit = Background(salir, [0, 0])
+Background_salir = Background(salir, [0, 0])
+
 # ----------------------------------------------------------------
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 20)
@@ -368,8 +367,10 @@ class Ground():
 def Pause():
     pause=True
     while pause:
+        screen.blit(Background_Menu.image, Background_Menu.rect)
         cursor1.update()  # si no llamo este metodo no funcionara al ahcer click
         boton1.update(screen, cursor1)  #estos son los botones nuevos
+        boton2.update(screen, cursor1)
         boton3.update(screen, cursor1) # el boton aparecera en pantalla
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -381,17 +382,36 @@ def Pause():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if cursor1.colliderect(boton1.rect):
                     pause=False
+                if cursor1.colliderect(boton2.rect):
+                    options_Pause()
                 if cursor1.colliderect(boton3.rect):
+                    screen.blit(Background_salir.image, Background_salir.rect)
+                    pygame.display.update()
+                    pygame.time.delay(3000) # esto "congela" la pantalla 3 segundos ( esta en milisegundos, 1 segundos equivale a 1000 milisegundos)
                     pygame.quit()
-                    sys.exit()  
+                    sys.exit()
         pygame.display.update()
     clock.tick(60)
+# --------------- Aclaracion, esta funcion es un menu de pausa que solo se usara cuando vayamos a la pausa, no se utiliza en el menu principal, este menu muestra los controles
+def options_Pause():
+    running = True
+    while running:
+        screen.blit(Background_opcion.image, Background_opcion.rect)
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()             #creo que no hace falta esto aca
+            if event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    running = False
 
-
+        pygame.display.update()
+        clock.tick(60)
+# ---------- Esta funcion si se usa en el menu principal, muestra los controles
 def options():
     running = True
     while running:
-        screen.blit(Background_Menu.image, Background_Menu.rect)
+        screen.blit(Background_opcion.image, Background_opcion.rect)
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -403,26 +423,6 @@ def options():
         pygame.display.update()
         clock.tick(60)
 
-
-def exit_game():
-    running = True
-    while running:
-        # screen.blit(Background_opcion.image, Background_opcion.rect)
-        screen.blit(Background_quit.image, Background_quit.rect)
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()  # creo que no hace falta esto aca
-            if event.type == pygame.KEYDOWN:  # pregunta si realmente quiere salir
-                if event.key == K_y:
-                    pygame.exit()
-                elif event.key == K_n:
-                    main_menu()
-        pygame.display.update()
-        clock.tick(60)
-    # pygame.time.delay(3000)
-
-
 # ----------------------------------------------------------------
 # ----------------------------------------------------------------
 running = True
@@ -433,11 +433,10 @@ def main_menu():
     menu_sound = pygame.mixer.music.load('Juego\\sonidos\\02 - Cloud Country.mp3')
     pygame.mixer.music.play(-1)
     while running:
-        keys = pygame.key.get_pressed()
         screen.blit(Background_Menu.image, Background_Menu.rect)
         mx, my = pygame.mouse.get_pos()
 
-        cursor1.update()  # si no llamo este metodo no funcionara al ahcer click
+        cursor1.update()  # si no llamo este metodo no funcionara el menu al hacer click
         click = False
 
         for event in pygame.event.get():
@@ -448,10 +447,13 @@ def main_menu():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if cursor1.colliderect(boton1.rect):
                     sonido.play()
-                    Game()
+                    Game()  # aca arrango el loop donde empezamos a jugar
                 if cursor1.colliderect(boton2.rect):
                     options()
                 if cursor1.colliderect(boton3.rect):
+                    screen.blit(Background_salir.image, Background_salir.rect)
+                    pygame.display.update()
+                    pygame.time.delay(3000) # esto "congela" la pantalla 3 segundos ( esta en milisegundos, 1 segundos equivale a 1000 milisegundos)
                     pygame.quit()
                     sys.exit()
 
@@ -470,12 +472,7 @@ def Game():
     font = pygame.font.Font("freesansbold.ttf", 20)
     check_point = pygame.mixer.Sound("Juego\\sonidos\\checkpoint.wav")
     death_sound = pygame.mixer.Sound("Juego\\sonidos\\die.wav")
-    pygame.display.set_caption("Dino Run")
-    dino_icon = pygame.image.load("Juego\\sprites\\dino_.png")
     keys = pygame.key.get_pressed()
-
-    pygame.display.set_icon(dino_icon)
-
     game_over = pygame.image.load("Juego\\sprites\\game_over.png")
     replay_button = pygame.image.load("Juego\\sprites\\deplay.png")
     GREY = (240, 240, 240)
@@ -532,10 +529,10 @@ def Game():
         while running:
             clock.tick(FPS)  # Controlling Frames Per Second
             nivel_final=False
-            score = font.render("Score: " + str(int(score_value)), True, (200, 200, 200))
+            score = font.render("Score: " + str(int(score_value)), True, (000, 000, 204))
             score_value += 0.25
             high_score_value = max(high_score_value, score_value)
-            high_score = font.render("High Score: " + str(int(high_score_value)), True, (200, 200, 200))
+            high_score = font.render("High Score: " + str(int(high_score_value)), True, (255, 000, 000))
             screen.blit(fondo_juego, [0, 0])
 
             for event in pygame.event.get():
@@ -590,7 +587,7 @@ def Game():
                 screen.blit(replay_button, (360, 100))
 
             pygame.display.update()
-            #detecta colision con el jugador
+            #detecta colision con el jugador con los enemigos, aca aparece el cartel de game_over
             for e in enemigos_lista:
                 y2=e.y+70
                 if y2>player.y and e.x<(player.x+50):
@@ -652,13 +649,17 @@ def Game():
                 if i==0:
                     screen.blit(fondo_final_win, [0, 0])
                     player.x=-100
-
+                # ---------Aca se detecta las colisiones contra dragones, si moris se llama a la funcion main_menu()
                 for e in enemigos_lista:
                     y2 = e.y + 70
                     if y2 > player.y and e.x < (player.x + 50):
                         nivel_final=False
                         running=False
                         enemigos_lista.empty()
+                        screen.blit(game_over, (200, 70))
+                        screen.blit(replay_button, (360, 100))
+                        pygame.display.update()
+                        pygame.time.delay(3000)
                         main_menu()
 
                     
